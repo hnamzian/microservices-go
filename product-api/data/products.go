@@ -42,13 +42,13 @@ func AddProduct(p *Product) {
 }
 
 func UpdateProduct(id int, p *Product) error {
-	prod, pos, err := findProduct(id)
+	_, pos, err := findProduct(id)
 
 	if err != nil {
 		return err
 	}
 
-	prod.ID = id
+	p.ID = id
 	productList[pos] = p
 	return nil
 }
