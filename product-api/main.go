@@ -1,3 +1,18 @@
+// Package classifications Product API
+//
+// Documentation for Product API
+//
+//	 Schemes: http
+//		BasePath: /
+//		Version: 1.0.0
+//
+//		Consumes:
+//	 - application/json
+//
+//	 Produces:
+//	 - application/json
+//
+// swagger:meta
 package main
 
 import (
@@ -17,14 +32,15 @@ func main() {
 	ph := handlers.NewProducts(l)
 
 	sm := mux.NewRouter()
-	sm.Methods(http.MethodGet).Subrouter().HandleFunc("/", ph.GetProducts)
-	
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/products", ph.ListAll)
+
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/", ph.AddProduct)
+	postRouter.HandleFunc("/products", ph.Create)
 	postRouter.Use(ph.Middleware)
 
 	putRouter := sm.Methods(http.MethodPut).Subrouter()
-	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProduct)
+	putRouter.HandleFunc("/products/{id:[0-9]+}", ph.Update)
 	putRouter.Use(ph.Middleware)
 
 	s := &http.Server{
