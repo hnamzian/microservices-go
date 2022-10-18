@@ -25,4 +25,6 @@ func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "[ERROR] Product Not Found", http.StatusNotFound)
 		return
 	}
+
+	rw.WriteHeader(http.StatusNoContent)
 }
