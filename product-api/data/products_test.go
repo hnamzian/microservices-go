@@ -7,7 +7,7 @@ import (
 func TestProductValidation(t *testing.T) {
 	prod := &Product{
 		Name: "tea",
-		Discription: "Nice tea",
+		Description: "Nice tea",
 		Price: 1.56,
 		SKU: "abc-def-ghi",
 	}
