@@ -1,0 +1,71 @@
+basePath: /
+consumes:
+    - application/json
+definitions:
+    GenericError:
+        description: GenericError is a generic error message returned by a server
+        x-go-package: microservices-go/handlers
+    Product:
+        description: Product defines the structure for an API product
+        x-go-package: microservices-go/data
+info:
+    description: Documentation for Product API
+    title: Product API
+    version: 1.0.0
+paths:
+    /products:
+        get:
+            consumes:
+                - application/json
+            description: This will show all available products by default.
+            operationId: listProducts
+            produces:
+                - application/json
+            responses:
+                "200":
+                    $ref: '#/responses/productsResponse'
+                "422":
+                    $ref: '#/responses/validationError'
+            schemes:
+                - http
+            summary: Lists products in the system
+            tags:
+                - products
+        post:
+            description: Create a new product
+            operationId: createProduct
+            responses:
+                "200":
+                    $ref: '#/responses/productResponse'
+                "422":
+                    $ref: '#/responses/errorValidation'
+                "501":
+                    $ref: '#/responses/errorResponse'
+            tags:
+                - products
+    /products/{id}:
+        delete:
+            consumes:
+                - application/json
+            description: This will delete a product from datastore
+            operationId: deleteProduct
+            produces:
+                - application/json
+            responses:
+                "201":
+                    $ref: '#/responses/noContent'
+                "422":
+                    $ref: '#/responses/validationError'
+            schemes:
+                - http
+            summary: Delete a product from datastore
+            tags:
+                - products
+produces:
+    - application/json
+responses:
+    productsResponse:
+        description: A list of products
+schemes:
+    - http
+swagger: "2.0"

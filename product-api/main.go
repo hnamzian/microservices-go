@@ -1,25 +1,66 @@
+// Package classifications Product API
+//
+// Documentation for Product API
+//
+//	 Schemes: http
+//		BasePath: /
+//		Version: 1.0.0
+//
+//		Consumes:
+//	 - application/json
+//
+//	 Produces:
+//	 - application/json
+//
+// swagger:meta
 package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"microservices-go/handlers"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/go-openapi/runtime/middleware"
+	gohandlers "github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 	ph := handlers.NewProducts(l)
 
-	sm := http.NewServeMux()
-	sm.Handle("/", ph)
+	sm := mux.NewRouter()
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/products", ph.ListAll)
+
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/products", ph.Create)
+	postRouter.Use(ph.Middleware)
+
+	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/products/{id:[0-9]+}", ph.Update)
+	putRouter.Use(ph.Middleware)
+
+	deleteRouter := sm.Methods(http.MethodDelete).Subrouter()
+	deleteRouter.HandleFunc("/products/{id:[0-9]+}", ph.Delete)
+
+	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	sh := middleware.Redoc(opts, nil)
+	getRouter.Handle("/docs", sh)
+	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+
+	ch := gohandlers.CORS(
+		gohandlers.AllowedOrigins([]string{"http://localhost:3000"}),
+	)
 
 	s := &http.Server{
 		Addr:    ":9090",
-		Handler: sm,
+		Handler: ch(sm),
 
 		IdleTimeout:  120 * time.Second,
 		ReadTimeout:  1 * time.Second,
@@ -27,6 +68,7 @@ func main() {
 	}
 
 	go func() {
+		fmt.Println("Start Running Server on Port 9090")
 		err := s.ListenAndServe()
 		if err != nil {
 			l.Fatal(err)
