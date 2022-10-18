@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"microservices-go/data"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/hnamzian/microservices-go/product-api/data"
 )
 
 func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {

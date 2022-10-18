@@ -1,4 +1,4 @@
-module microservices-go
+module github.com/hnamzian/microservices-go/product-api
 
 go 1.19
 

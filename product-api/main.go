@@ -17,13 +17,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"microservices-go/handlers"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/hnamzian/microservices-go/product-api/handlers"
 
 	"github.com/go-openapi/runtime/middleware"
 	gohandlers "github.com/gorilla/handlers"
@@ -68,7 +68,7 @@ func main() {
 	}
 
 	go func() {
-		fmt.Println("Start Running Server on Port 9090")
+		l.Println("Start Running Server on Port 9090")
 		err := s.ListenAndServe()
 		if err != nil {
 			l.Fatal(err)

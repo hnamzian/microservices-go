@@ -15,7 +15,7 @@
 // swagger:meta
 package handlers
 
-import "microservices-go/data"
+import "github.com/hnamzian/microservices-go/product-api/data"
 
 // A list of products
 // swagger:response productsResponse

@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"microservices-go/data"
 	"net/http"
+
+	"github.com/hnamzian/microservices-go/product-api/data"
 )
 
 type Products struct {

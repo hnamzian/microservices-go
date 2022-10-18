@@ -2,30 +2,30 @@ package handlers
 
 import (
 	"fmt"
-	"microservices-go/data"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/hnamzian/microservices-go/product-api/data"
 )
 
 // swagger:route DELETE /products/{id} products deleteProduct
 //
-// Delete a product from datastore
+// # Delete a product from datastore
 //
 // This will delete a product from datastore
 //
-//     Consumes:
-//     - application/json
+//	Consumes:
+//	- application/json
 //
-//     Produces:
-//     - application/json
+//	Produces:
+//	- application/json
 //
-//     Schemes: http
+//	Schemes: http
 //
-//     Responses:
-//       201: noContent 
-//       422: validationError
+//	Responses:
+//	  201: noContent
+//	  422: validationError
 func (p *Products) Delete(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("[DEBUG] Delete a product")
 

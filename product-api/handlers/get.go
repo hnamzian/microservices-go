@@ -1,27 +1,28 @@
 package handlers
 
 import (
-	"microservices-go/data"
 	"net/http"
+
+	"github.com/hnamzian/microservices-go/product-api/data"
 )
 
 // swagger:route GET /products products listProducts
 //
-// Lists products in the system
+// # Lists products in the system
 //
 // This will show all available products by default.
 //
-//     Consumes:
-//     - application/json
+//	Consumes:
+//	- application/json
 //
-//     Produces:
-//     - application/json
+//	Produces:
+//	- application/json
 //
-//     Schemes: http
+//	Schemes: http
 //
-//     Responses:
-//       200: productsResponse
-//       422: validationError
+//	Responses:
+//	  200: productsResponse
+//	  422: validationError
 func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 	p.l.Printf("[DEBUG] Get All Products")
 
