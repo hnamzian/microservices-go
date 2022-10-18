@@ -5,6 +5,23 @@ import (
 	"net/http"
 )
 
+// swagger:route GET /products products listProducts
+//
+// Lists products in the system
+//
+// This will show all available products by default.
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//     Schemes: http
+//
+//     Responses:
+//       200: productsResponse
+//       422: validationError
 func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 	p.l.Printf("[DEBUG] Get All Products")
 
