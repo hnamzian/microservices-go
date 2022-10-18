@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,11 +9,15 @@ import (
 
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	hclog "github.com/hashicorp/go-hclog"
 	"github.com/hnamzian/microservices-go/product-images/handlers"
 )
 
 func main() {
-	l := log.New(os.Stdout, "product-images", log.LstdFlags)
+	l := hclog.New(&hclog.LoggerOptions{
+		Name:  "product-images",
+		Level: hclog.LevelFromString("DEBUG"),
+	})
 
 	handlers.NewFiles(l)
 
@@ -32,10 +35,11 @@ func main() {
 	}
 
 	go func() {
-		l.Println("Server starts Running on Port 9090")
+		l.Info("Server starts Running on Port 9090")
 		err := s.ListenAndServe()
 		if err != nil {
-			l.Fatal(err)
+			l.Error("Unable to Start Server", "error", err)
+			os.Exit(1)
 		}
 	}()
 
@@ -44,9 +48,9 @@ func main() {
 	signal.Notify(sigChan, os.Interrupt)
 	signal.Notify(sigChan, os.Kill)
 
-	signal := <- sigChan
-	l.Printf("Received terminate, graceful shutdown:%s", signal)
+	signal := <-sigChan
+	l.Info("Received terminate, graceful shutdown:%s", signal)
 
-	tc, _ := context.WithTimeout(context.Background(), 30 * time.Second)
+	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	s.Shutdown(tc)
 }

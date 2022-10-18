@@ -24,7 +24,7 @@ import (
 //	  200: productsResponse
 //	  422: validationError
 func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
-	p.l.Printf("[DEBUG] Get All Products")
+	p.l.Info("[DEBUG] Get All Products")
 
 	lp := data.GetProductList()
 

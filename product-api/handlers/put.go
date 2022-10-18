@@ -9,7 +9,7 @@ import (
 )
 
 func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {
-	p.l.Printf("[DEBUG] Update A Product")
+	p.l.Info("[DEBUG] Update A Product")
 
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])

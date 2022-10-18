@@ -3,17 +3,17 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hnamzian/microservices-go/product-api/data"
 )
 
 type Products struct {
-	l *log.Logger
+	l hclog.Logger
 }
 
-func NewProducts(l *log.Logger) *Products {
+func NewProducts(l hclog.Logger) *Products {
 	return &Products{l}
 }
 
@@ -21,7 +21,7 @@ type KeyProduct struct{}
 
 func (p *Products) Middleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		p.l.Printf("Middleware")
+		p.l.Info("Middleware")
 
 		prod := &data.Product{}
 		err := prod.FromJSON(r.Body)

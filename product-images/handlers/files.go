@@ -1,11 +1,13 @@
 package handlers
 
-import "log"
+import (
+	hclog "github.com/hashicorp/go-hclog"
+)
 
 type Files struct {
-	l *log.Logger
+	l hclog.Logger
 }
 
-func NewFiles(l *log.Logger) *Files {
+func NewFiles(l hclog.Logger) *Files {
 	return &Files{l}
 }

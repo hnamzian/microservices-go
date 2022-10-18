@@ -17,12 +17,12 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hnamzian/microservices-go/product-api/handlers"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -31,7 +31,10 @@ import (
 )
 
 func main() {
-	l := log.New(os.Stdout, "product-api", log.LstdFlags)
+	l := hclog.New(&hclog.LoggerOptions{
+		Name:  "product-api",
+		Level: hclog.LevelFromString("DEBUG"),
+	})
 	ph := handlers.NewProducts(l)
 
 	sm := mux.NewRouter()
@@ -68,10 +71,11 @@ func main() {
 	}
 
 	go func() {
-		l.Println("Start Running Server on Port 9090")
+		l.Info("Start Running Server on Port 9090")
 		err := s.ListenAndServe()
 		if err != nil {
-			l.Fatal(err)
+			l.Error("Unable to Start Server", "error", err)
+			os.Exit(1)
 		}
 	}()
 
@@ -80,7 +84,7 @@ func main() {
 	signal.Notify(sigChan, os.Kill)
 
 	sig := <-sigChan
-	l.Printf("Received terminate, graceful shutdown: %s", sig)
+	l.Info("Received terminate, graceful shutdown: %s", sig)
 
 	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	s.Shutdown(tc)
