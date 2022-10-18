@@ -17,6 +17,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"microservices-go/handlers"
 	"net/http"
@@ -25,8 +26,8 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gorilla/mux"
 	gohandlers "github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -67,6 +68,7 @@ func main() {
 	}
 
 	go func() {
+		fmt.Println("Start Running Server on Port 9090")
 		err := s.ListenAndServe()
 		if err != nil {
 			l.Fatal(err)
