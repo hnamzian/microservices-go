@@ -1,12 +1,11 @@
 package main
 
 import (
-	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/hashicorp/go-hclog"
 	"github.com/hnamzian/microservices-go/product-images/configs"
 	"github.com/hnamzian/microservices-go/product-images/files"
 	"github.com/hnamzian/microservices-go/product-images/handlers"
@@ -15,11 +14,14 @@ import (
 func main() {
 	cfg := configs.Load()
 
-	l := log.New(os.Stdout, "product-images", log.LstdFlags)
+	hcl := hclog.New(&hclog.LoggerOptions{
+		Name:  "product-images",
+		Level: hclog.Debug,
+	})
 
-	fl, _ := files.NewLocal(l, cfg.BasePath)
+	fl, _ := files.NewLocal(hcl, cfg.BasePath)
 
-	fh := handlers.NewFiles(l, fl)
+	fh := handlers.NewFiles(hcl, fl)
 	sm := mux.NewRouter()
 
 	ph := sm.Methods(http.MethodPost).Subrouter()
@@ -30,6 +32,8 @@ func main() {
 		"/images/{id:[0-9]+}/{filename:[a-zA-Z]+\\.[a-zA-Z]{3}}",
 		http.StripPrefix("/images", http.FileServer(http.Dir(cfg.BasePath))))
 
+	hcl.Info("Server Starts Running", "bindAddress", cfg.BindAddress)
+
 	s := &http.Server{
 		Addr:         cfg.BindAddress,
 		Handler:      sm,
@@ -38,4 +42,5 @@ func main() {
 		WriteTimeout: 1 * time.Second,
 	}
 	s.ListenAndServe()
+
 }

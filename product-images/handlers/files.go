@@ -1,29 +1,29 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"path/filepath"
 
 	"github.com/gorilla/mux"
+	"github.com/hashicorp/go-hclog"
 	"github.com/hnamzian/microservices-go/product-images/files"
 )
 
 type Files struct {
-	l     *log.Logger
+	l     hclog.Logger
 	store *files.Local
 }
 
-func NewFiles(l *log.Logger, store *files.Local) *Files {
+func NewFiles(l hclog.Logger, store *files.Local) *Files {
 	return &Files{l, store}
 }
 
 func (f *Files) SaveFile(rw http.ResponseWriter, r *http.Request) {
-	f.l.Println("Handle POST files")
-
 	params := mux.Vars(r)
 	id := params["id"]
 	filename := params["filename"]
+
+	f.l.Info("Handle POST files", "id", id, "filename", filename)
 
 	path := filepath.Join(id, filename)
 
