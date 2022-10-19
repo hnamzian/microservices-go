@@ -27,5 +27,12 @@ func (f *Files) SaveFile(rw http.ResponseWriter, r *http.Request) {
 
 	path := filepath.Join(id, filename)
 
-	f.store.Save(path, r.Body)
+	err := f.store.Save(path, r.Body)
+	if err != nil {
+		f.l.Error("Unable to save file", "error", err)
+		http.Error(rw, "Unable to save file", http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNoContent)
 }
