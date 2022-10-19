@@ -31,6 +31,7 @@ func main() {
 
 	ph := sm.Methods(http.MethodPost).Subrouter()
 	ph.HandleFunc("/images/{id:[0-9]+}/{filename:[a-zA-Z]+\\.[a-zA-Z]{3}}", fh.SaveFile)
+	ph.HandleFunc("/", fh.SaveFileMultipart)
 
 	gh := sm.Methods(http.MethodGet).Subrouter()
 	gh.Handle(
