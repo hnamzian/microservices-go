@@ -5,7 +5,9 @@ import (
 	"os"
 	"time"
 
+	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+
 	"github.com/hashicorp/go-hclog"
 	"github.com/hnamzian/microservices-go/product-images/configs"
 	"github.com/hnamzian/microservices-go/product-images/files"
@@ -40,9 +42,11 @@ func main() {
 
 	hcl.Info("Server Starts Running", "bindAddress", cfg.BindAddress)
 
+	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
+
 	s := &http.Server{
 		Addr:         cfg.BindAddress,
-		Handler:      sm,
+		Handler:      ch(sm),
 		IdleTimeout:  120 * time.Second,
 		ReadTimeout:  1 * time.Second,
 		WriteTimeout: 1 * time.Second,
