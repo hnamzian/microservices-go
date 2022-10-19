@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -19,7 +20,11 @@ func main() {
 		Level: hclog.Debug,
 	})
 
-	fl, _ := files.NewLocal(hcl, cfg.BasePath)
+	fl, err := files.NewLocal(hcl, cfg.BasePath)
+	if err != nil {
+		hcl.Error("Unable to create storage", "error", err)
+		os.Exit(1)
+	}
 
 	fh := handlers.NewFiles(hcl, fl)
 	sm := mux.NewRouter()
