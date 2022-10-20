@@ -30,6 +30,7 @@ func main() {
 
 	fh := handlers.NewFiles(hcl, fl)
 	sm := mux.NewRouter()
+	gz := handlers.NewGzipHandler()
 
 	ph := sm.Methods(http.MethodPost).Subrouter()
 	ph.HandleFunc("/images/{id:[0-9]+}/{filename:[a-zA-Z]+\\.[a-zA-Z]{3}}", fh.SaveFile)
@@ -39,6 +40,7 @@ func main() {
 	gh.Handle(
 		"/images/{id:[0-9]+}/{filename:[a-zA-Z]+\\.[a-zA-Z]{3}}",
 		http.StripPrefix("/images", http.FileServer(http.Dir(cfg.BasePath))))
+	gh.Use(gz.GzipMiddleware)
 
 	hcl.Info("Server Starts Running", "bindAddress", cfg.BindAddress)
 

@@ -27,6 +27,9 @@ func (f *Files) SaveFile(rw http.ResponseWriter, r *http.Request) {
 	f.log.Info("Handle POST files", "id", id, "filename", filename)
 
 	path := filepath.Join(id, filename)
+
+	// defer r.Body.Close()
+
 	err := f.store.Save(path, r.Body)
 	if err != nil {
 		f.log.Error("Unable to save file", "error", err)
@@ -67,6 +70,4 @@ func (f *Files) SaveFileMultipart(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "Unable to save file", http.StatusInternalServerError)
 		return
 	}
-
-	rw.WriteHeader(http.StatusNoContent)
 }

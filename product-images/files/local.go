@@ -29,7 +29,7 @@ func (l *Local) Save(path string, content io.Reader) error {
 	d := filepath.Dir(fullPath)
 	err := os.MkdirAll(d, os.ModePerm)
 	if err != nil {
-		return xerrors.Errorf("Unable to create directories", "error", err)
+		return xerrors.Errorf("Unable to create directories %w", err)
 	}
 
 	// Remove file if exists
@@ -37,25 +37,66 @@ func (l *Local) Save(path string, content io.Reader) error {
 	if err == nil {
 		err = os.Remove(fullPath)
 		if err != nil {
-			return xerrors.Errorf("Unable to remove existing file", "error", err)
+			return xerrors.Errorf("Unable to remove existing file %w", err)
 		}
 	} else if !os.IsNotExist(err) {
-		return xerrors.Errorf("Unable to get file info", "error", err)
+		return xerrors.Errorf("Unable to get file info %w", err)
 	}
 
+	// // create new file
+	// f, err := os.Create(fullPath)
+	// if err != nil {
+	// 	return xerrors.Errorf("Unable to Create new file %w", err)
+	// }
+	// defer f.Close()
+
+	// // copy content to file
+	// wl, err := io.Copy(f, content)
+	// if err != nil {
+	// 	return xerrors.Errorf("Unable to write content to file %w", err)
+	// }
+
+	// l.l.Info("Bytes written", "length", wl)
+	// return nil
+	// return copyToFileFromReader(fullPath, content)
+
+	return copyToFile(fullPath, content)
+}
+
+func copyToFileFromReader(path string, content io.Reader) error {
 	// create new file
-	f, err := os.Create(fullPath)
+	f, err := os.Create(path)
 	if err != nil {
-		return xerrors.Errorf("Unable to Create new file", "error", err)
+		return xerrors.Errorf("Unable to Create new file %w", err)
 	}
 	defer f.Close()
 
 	// copy content to file
-	wl, err := io.Copy(f, content)
+	_, err = io.Copy(f, content)
 	if err != nil {
-		return xerrors.Errorf("Unable to write content to file", "error", err)
+		return xerrors.Errorf("Unable to write content to file %w", err)
 	}
 
-	l.l.Info("Bytes written", "length", wl)
+	return nil
+}
+
+func copyToFile(path string, content io.Reader) error {
+	data, err := io.ReadAll(content)
+	if err != nil {
+		return xerrors.Errorf("Unable to read data from body %w", err)
+	}
+
+	// create new file
+	f, err := os.Create(path)
+	if err != nil {
+		return xerrors.Errorf("Unable to Create new file %w", err)
+	}
+	defer f.Close()
+
+	_, err = f.Write(data)
+	if err != nil {
+		return xerrors.Errorf("Unable to write content to file %w", err)
+	}
+
 	return nil
 }
