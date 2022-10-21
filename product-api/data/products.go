@@ -60,6 +60,14 @@ func validateSKU(fl validator.FieldLevel) bool {
 	return len(matches) == 1
 }
 
+func GetOneProduct(id int) (*Product, error) {
+	p, _, err := findProduct(id)
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
 func GetProductList() Products {
 	return productList
 }

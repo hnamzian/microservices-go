@@ -6,15 +6,17 @@ import (
 	"net/http"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hnamzian/microservices-go/product-api/currency"
 	"github.com/hnamzian/microservices-go/product-api/data"
 )
 
 type Products struct {
 	l hclog.Logger
+	cc currency.CurrencyClient
 }
 
-func NewProducts(l hclog.Logger) *Products {
-	return &Products{l}
+func NewProducts(l hclog.Logger, cc currency.CurrencyClient) *Products {
+	return &Products{l, cc}
 }
 
 type KeyProduct struct{}

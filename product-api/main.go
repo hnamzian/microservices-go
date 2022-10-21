@@ -23,7 +23,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-hclog"
+	currency "github.com/hnamzian/microservices-go/product-api/currency"
 	"github.com/hnamzian/microservices-go/product-api/handlers"
+	"google.golang.org/grpc"
 
 	"github.com/go-openapi/runtime/middleware"
 	gohandlers "github.com/gorilla/handlers"
@@ -35,11 +37,25 @@ func main() {
 		Name:  "product-api",
 		Level: hclog.LevelFromString("DEBUG"),
 	})
-	ph := handlers.NewProducts(l)
+
+	// create grpc connection
+	gconn, err := grpc.Dial("localhost:9092", grpc.WithInsecure())
+	if err != nil {
+		l.Error("Unable to creat grpc client", "error", err)
+	}
+
+	defer gconn.Close()
+
+	// create currency client
+	cc := currency.NewCurrencyClient(gconn)
+
+
+	ph := handlers.NewProducts(l, cc)
 
 	sm := mux.NewRouter()
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/products", ph.ListAll)
+	getRouter.HandleFunc("/products/{id:[0-9]+}", ph.GetOne)
 
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/products", ph.Create)
