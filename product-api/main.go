@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	currency "github.com/hnamzian/microservices-go/product-api/currency"
+	"github.com/hnamzian/microservices-go/product-api/data"
 	"github.com/hnamzian/microservices-go/product-api/handlers"
 	"google.golang.org/grpc"
 
@@ -48,15 +49,16 @@ func main() {
 
 	// create currency client
 	cc := currency.NewCurrencyClient(gconn)
+	pdb := data.NewProductsDB(l, cc)
 
-
-	ph := handlers.NewProducts(l, cc)
+	ph := handlers.NewProducts(l, pdb)
 
 	sm := mux.NewRouter()
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/products", ph.ListAll)
+	getRouter.HandleFunc("/products/{id:[0-9]+}", ph.GetOne).Queries("currency", "{[A-Z]{3}}")
 	getRouter.HandleFunc("/products/{id:[0-9]+}", ph.GetOne)
-
+	
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/products", ph.Create)
 	postRouter.Use(ph.Middleware)

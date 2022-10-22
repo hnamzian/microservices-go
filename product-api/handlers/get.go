@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/hnamzian/microservices-go/product-api/currency"
 	"github.com/hnamzian/microservices-go/product-api/data"
 )
 
@@ -30,7 +28,14 @@ import (
 func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 	p.l.Info("[DEBUG] Get All Products")
 
-	lp := data.GetProductList()
+	params := mux.Vars(r)
+	dest := params["currency"]
+
+	lp, err := p.pdb.GetProductsAll(dest)
+	if err != nil {
+		http.Error(rw, "[ERROR] Could not get products", http.StatusInternalServerError)
+		return
+	}
 
 	// d, err := json.Marshal(lp)
 	// if err != nil {
@@ -39,7 +44,7 @@ func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 	// rw.Write([]byte(d))
 
 	// 2nd method: use json Encoder module which is faster and does not nedd any buffer ot local vars
-	err := lp.ToJSON(rw)
+	err = lp.ToJSON(rw)
 	if err != nil {
 		http.Error(rw, "[ERROR] Could not encode product list into json", http.StatusInternalServerError)
 		return
@@ -57,27 +62,25 @@ func (p *Products) GetOne(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := data.GetOneProduct(id)
-	if err != nil {
+	dest := r.URL.Query().Get("currency")
+
+	product, err := p.pdb.GetProductById(id, dest)
+
+	switch err {
+	case nil:
+
+	case data.ErrorProductNotFound:
 		p.l.Error("[ERROR] Product Not Found", "error", err)
 		http.Error(rw, "Product Not Found", http.StatusNotFound)
 		return
-	}
 
-	rr := &currency.RateRequest{
-		Base:        currency.Currencies(currency.Currencies_value["GBP"]),
-		Destination: currency.Currencies(currency.Currencies_value["USD"]),
-	}
-	rate, err := p.cc.GetRate(context.Background(), rr)
-	if err != nil {
-		p.l.Error("[ERROR] Unable to get rate from currency service", "error", err)
-		http.Error(rw, "Unable to get rate from currency service", http.StatusInternalServerError)
+	default:
+		p.l.Error("Unable to fetching product", "error", err)
+
+		rw.WriteHeader(http.StatusInternalServerError)
+		http.Error(rw, "Unable to fetching product", http.StatusNotFound)
 		return
 	}
-
-	p.l.Info("rate", "value", rate)
-
-	product.Price = product.Price * rate.GetRate()
 
 	err = product.ToJSON(rw)
 	if err != nil {

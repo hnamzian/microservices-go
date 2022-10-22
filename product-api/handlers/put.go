@@ -20,7 +20,7 @@ func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {
 
 	prod := r.Context().Value(KeyProduct{}).(*data.Product)
 
-	err = data.UpdateProduct(id, prod)
+	err = p.pdb.UpdateProduct(id, prod)
 	if err == data.ErrorProductNotFound {
 		http.Error(rw, "[ERROR] Product Not Found", http.StatusNotFound)
 		return

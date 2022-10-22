@@ -37,7 +37,7 @@ func (p *Products) Delete(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = data.DeleteProduct(id)
+	err = p.pdb.DeleteProduct(id)
 	if err == data.ErrorProductNotFound {
 		p.l.Info("[ERROR] Deleting product id does not exist")
 
