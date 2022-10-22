@@ -26,14 +26,16 @@ import (
 //	  200: productsResponse
 //	  422: validationError
 func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
-	p.l.Info("[DEBUG] Get All Products")
+	p.log.Debug("Get All Products")
 
 	params := mux.Vars(r)
 	dest := params["currency"]
 
 	lp, err := p.pdb.GetProductsAll(dest)
 	if err != nil {
-		http.Error(rw, "[ERROR] Could not get products", http.StatusInternalServerError)
+		p.log.Error("Could not get products", "error", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		data.ToJSON(&GenericError{Message: "Could not get products"}, rw)
 		return
 	}
 
@@ -44,21 +46,24 @@ func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 	// rw.Write([]byte(d))
 
 	// 2nd method: use json Encoder module which is faster and does not nedd any buffer ot local vars
-	err = lp.ToJSON(rw)
+	err = data.ToJSON(lp, rw)
 	if err != nil {
-		http.Error(rw, "[ERROR] Could not encode product list into json", http.StatusInternalServerError)
+		p.log.Error("Could not encode product list into json", "error", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		data.ToJSON(&GenericError{Message: "Could not encode product list into json"}, rw)
 		return
 	}
 }
 
 func (p *Products) GetOne(rw http.ResponseWriter, r *http.Request) {
-	p.l.Info("[DEBUG] Get One product")
+	p.log.Debug("Get One product")
 
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
 	if err != nil {
-		p.l.Error("[ERROR] Unable to parse Id", "error", err)
-		http.Error(rw, "Unable to parse Id", http.StatusInternalServerError)
+		p.log.Error("Unable to parse Id", "error", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		data.ToJSON(&GenericError{Message: "Unable to parse Id"}, rw)
 		return
 	}
 
@@ -70,21 +75,23 @@ func (p *Products) GetOne(rw http.ResponseWriter, r *http.Request) {
 	case nil:
 
 	case data.ErrorProductNotFound:
-		p.l.Error("[ERROR] Product Not Found", "error", err)
-		http.Error(rw, "Product Not Found", http.StatusNotFound)
+		p.log.Error("Product Not Found", "error", err)
+		rw.WriteHeader(http.StatusNotFound)
+		data.ToJSON(&GenericError{Message: "Product Not Found"}, rw)
 		return
 
 	default:
-		p.l.Error("Unable to fetching product", "error", err)
-
+		p.log.Error("Unable to fetching product", "error", err)
 		rw.WriteHeader(http.StatusInternalServerError)
-		http.Error(rw, "Unable to fetching product", http.StatusNotFound)
+		data.ToJSON(&GenericError{Message: "Unable to fetching product"}, rw)
 		return
 	}
 
-	err = product.ToJSON(rw)
+	err = data.ToJSON(product, rw)
 	if err != nil {
-		http.Error(rw, "[ERROR] Could not encode product list into json", http.StatusInternalServerError)
+		p.log.Error("Could not encode product list into json", "error", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		data.ToJSON(&GenericError{Message: "Could not encode product list into json"}, rw)
 		return
 	}
 }

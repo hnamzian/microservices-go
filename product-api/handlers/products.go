@@ -10,7 +10,7 @@ import (
 )
 
 type Products struct {
-	l   hclog.Logger
+	log   hclog.Logger
 	pdb *data.ProductsDB
 }
 
@@ -22,18 +22,22 @@ type KeyProduct struct{}
 
 func (p *Products) Middleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		p.l.Info("Middleware")
+		p.log.Info("Middleware")
 
 		prod := &data.Product{}
-		err := prod.FromJSON(r.Body)
+		err := data.FromJSON(prod, r.Body)
 		if err != nil {
-			http.Error(rw, "Could not parse product from body", http.StatusBadRequest)
+			p.log.Error("Could not parse product from body", "error", err)
+			rw.WriteHeader(http.StatusBadRequest)
+			data.ToJSON(&GenericError{Message: "Could not parse product from body"}, rw)
 			return
 		}
 
 		err = prod.ValidateProduct()
 		if err != nil {
-			http.Error(rw, fmt.Sprintf("Unable to parse Product: %s", err), http.StatusBadRequest)
+			p.log.Error("Unable to parse Product", "error", err)
+			rw.WriteHeader(http.StatusBadRequest)
+			data.ToJSON(&GenericError{Message: fmt.Sprintf("Unable to parse Product: %s", err)}, rw)
 			return
 		}
 
@@ -42,4 +46,8 @@ func (p *Products) Middleware(h http.Handler) http.Handler {
 
 		h.ServeHTTP(rw, req)
 	})
+}
+
+type GenericError struct {
+	Message string `json:"message"`
 }

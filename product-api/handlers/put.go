@@ -9,12 +9,13 @@ import (
 )
 
 func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {
-	p.l.Info("[DEBUG] Update A Product")
+	p.log.Debug("Update A Product")
 
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
 	if err != nil {
-		http.Error(rw, "[ERROR] Invalid Product Id", http.StatusBadRequest)
+		rw.WriteHeader(http.StatusBadRequest)
+		data.ToJSON(&GenericError{Message: "[ERROR] Invalid Product Id"}, rw)
 		return
 	}
 
@@ -22,7 +23,8 @@ func (p *Products) Update(rw http.ResponseWriter, r *http.Request) {
 
 	err = p.pdb.UpdateProduct(id, prod)
 	if err == data.ErrorProductNotFound {
-		http.Error(rw, "[ERROR] Product Not Found", http.StatusNotFound)
+		rw.WriteHeader(http.StatusNotFound)
+		data.ToJSON(&GenericError{Message: "[ERROR] Product Not Found"}, rw)
 		return
 	}
 
