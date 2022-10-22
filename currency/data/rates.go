@@ -21,8 +21,27 @@ func NewExchangeRates(log hclog.Logger) (*ExchangeRates, error) {
 	}
 
 	err := er.getRates()
-	
+
 	return er, err
+}
+
+func (er *ExchangeRates) GetRate(base, dest string) (float64, error) {
+	br, ok := er.rates[base]
+	er.log.Info("rate", "currency", base, "base", br)
+	if !ok {
+		return 0, fmt.Errorf("rate not found for %s", base)
+	}
+
+	dr, ok := er.rates[dest]
+	er.log.Info("rate", "currency", dest, "dest", dr)
+
+	if !ok {
+		return 0, fmt.Errorf("rate not found for %s", dest)
+	}
+
+	er.log.Info("rate", "base", base, "dest", dest, "dest", dr / br)
+
+	return dr / br, nil
 }
 
 func (er *ExchangeRates) getRates() error {
@@ -38,6 +57,9 @@ func (er *ExchangeRates) getRates() error {
 	er.log.Info("response", "status", resp.StatusCode)
 
 	md := &Cubes{}
+
+	defer resp.Body.Close()
+
 	err = xml.NewDecoder(resp.Body).Decode(md)
 	if err != nil {
 		return err
@@ -51,6 +73,8 @@ func (er *ExchangeRates) getRates() error {
 
 		er.rates[c.Currency] = rf
 	}
+
+	er.rates["EUR"] = 1
 
 	return nil
 }

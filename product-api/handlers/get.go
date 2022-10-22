@@ -75,6 +75,8 @@ func (p *Products) GetOne(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	p.l.Info("rate", "value", rate)
+
 	product.Price = product.Price * rate.GetRate()
 
 	err = product.ToJSON(rw)

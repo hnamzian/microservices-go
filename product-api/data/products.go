@@ -34,7 +34,7 @@ type Product struct {
 	//
 	// required: true
 	// min: 0.01
-	Price float32 `json:"price" validate:"required,gt=0"`
+	Price float64 `json:"price" validate:"required,gt=0"`
 
 	// the SKU for the product
 	//
@@ -61,11 +61,14 @@ func validateSKU(fl validator.FieldLevel) bool {
 }
 
 func GetOneProduct(id int) (*Product, error) {
-	p, _, err := findProduct(id)
+	_, pos, err := findProduct(id)
 	if err != nil {
 		return nil, err
 	}
-	return p, nil
+
+	np := *productList[pos]
+
+	return &np, nil
 }
 
 func GetProductList() Products {
