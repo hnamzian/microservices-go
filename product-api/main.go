@@ -55,10 +55,11 @@ func main() {
 
 	sm := mux.NewRouter()
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/products", ph.ListAll).Queries("currency", "{[A-Z]{3}}")
 	getRouter.HandleFunc("/products", ph.ListAll)
 	getRouter.HandleFunc("/products/{id:[0-9]+}", ph.GetOne).Queries("currency", "{[A-Z]{3}}")
 	getRouter.HandleFunc("/products/{id:[0-9]+}", ph.GetOne)
-	
+
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/products", ph.Create)
 	postRouter.Use(ph.Middleware)
@@ -82,6 +83,8 @@ func main() {
 	s := &http.Server{
 		Addr:    ":9090",
 		Handler: ch(sm),
+
+		ErrorLog: l.StandardLogger(&hclog.StandardLoggerOptions{}),
 
 		IdleTimeout:  120 * time.Second,
 		ReadTimeout:  1 * time.Second,

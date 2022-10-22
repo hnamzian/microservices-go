@@ -28,8 +28,7 @@ import (
 func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 	p.log.Debug("Get All Products")
 
-	params := mux.Vars(r)
-	dest := params["currency"]
+	dest := r.URL.Query().Get("currency")
 
 	lp, err := p.pdb.GetProductsAll(dest)
 	if err != nil {

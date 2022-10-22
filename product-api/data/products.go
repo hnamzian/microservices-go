@@ -91,6 +91,7 @@ func (pd *ProductsDB) GetProductById(id int, dest string) (*Product, error) {
 }
 
 func (pd *ProductsDB) GetProductsAll(dest string) (Products, error) {
+	pd.log.Debug("dest", "currency", dest)
 	products := Products{}
 	for _, p := range productList {
 		np := *p
